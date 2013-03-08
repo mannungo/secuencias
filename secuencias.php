@@ -42,7 +42,8 @@ if( $argv[2] ) print_a( $muestra, $secuencias, $matriz, $cont, $puntajes );
 print 'El culpable es el sospechoso numero '.( $culpable + 1).' ('.$secuencias[$culpable].').';
 exit;
 
-function alinear( $s1, $s2 ) {
+
+function alinear( $s1, $s2 ) { // la funcion que hace la magia
 	global $matriz, $cont;
 	$cont++;
 
@@ -53,26 +54,22 @@ function alinear( $s1, $s2 ) {
 	$k = $s1.'/'.$s2;
 	if( ! isset( $matriz[$k] ) ) {
 		$matriz[$k] = 0;
+
+		while( $s1 && $s2 && $s1[0] == $s2[0] ) { // sin primeros caracteres son iguales, avanzo
+			$matriz[$k] += $matriz[ $s1[0].'/'.$s2[0] ];
+			$s1 = substr( $s1, 1 );
+			$s2 = substr( $s2, 1 );
+		}
+
 		if( $s1 == '' ) {
 			for( $i = 0; $i < strlen( $s2 ); $i++ ) $matriz[$k] += $matriz[ $s2[$i].'/' ];
 
 		} else {
-			while( $s1 && $s2 && $s1[0] == $s2[0] ) { // sin son iguales, avanzo
-				$matriz[$k] += $matriz[ $s1[0].'/'.$s2[0] ];
-				$s1 = substr( $s1, 1 );
-				$s2 = substr( $s2, 1 );
-			}
-
-			if( ! $s1 || ! $s2 ) {
-				$matriz[$k] += alinear( $s1, $s2 );
-
-			} else {
-				$matriz[$k] += max(
-					$matriz[ $s1[0].'/' ] + alinear( substr( $s1, 1 ), $s2 ),
-					$matriz[ '/'.$s2[0] ] + alinear( $s1, substr( $s2, 1 ) ),
-					$matriz[ $s1[0].'/'.$s2[0] ] + alinear( substr( $s1, 1 ), substr( $s2, 1 ) )
-				);
-			}
+			$matriz[$k] += max(
+				$matriz[ $s1[0].'/' ] + alinear( substr( $s1, 1 ), $s2 ),
+				$matriz[ '/'.$s2[0] ] + alinear( $s1, substr( $s2, 1 ) ),
+				$matriz[ $s1[0].'/'.$s2[0] ] + alinear( substr( $s1, 1 ), substr( $s2, 1 ) )
+			);
 		}
 	}
 
@@ -81,7 +78,7 @@ function alinear( $s1, $s2 ) {
 
 
 
-function print_a( $a ) {
+function print_a( $a ) { // solo para debuguear
    $id = 'debug_'.md5( rand() );
    if( func_num_args() > 1 ) $a = func_get_args();
    print print_r( $a, TRUE )."\n\n";
