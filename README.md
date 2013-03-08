@@ -3,6 +3,7 @@ alineamiento de secuencias geneticas
 
 http://www.programando.org/blog/2013/03/desafio-marzo-slash-abril-adn-forense/#disqus_thread
 
+Primer parametros es el archivo de datos, el segundo es debug.
 
 <pre>
 ?> php secuencias.php datos.txt
