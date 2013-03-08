@@ -55,7 +55,7 @@ function alinear( $s1, $s2 ) { // la funcion que hace la magia
 	if( ! isset( $matriz[$k] ) ) {
 		$matriz[$k] = 0;
 
-		while( $s1 && $s2 && $s1[0] == $s2[0] ) { // sin primeros caracteres son iguales, avanzo
+		while( $s1 && $s2 && $s1[0] == $s2[0] ) { // si primeros caracteres son iguales, avanzo
 			$matriz[$k] += $matriz[ $s1[0].'/'.$s2[0] ];
 			$s1 = substr( $s1, 1 );
 			$s2 = substr( $s2, 1 );
@@ -79,7 +79,6 @@ function alinear( $s1, $s2 ) { // la funcion que hace la magia
 
 
 function print_a( $a ) { // solo para debuguear
-   $id = 'debug_'.md5( rand() );
    if( func_num_args() > 1 ) $a = func_get_args();
    print print_r( $a, TRUE )."\n\n";
 }
