@@ -1,7 +1,7 @@
 alineamiento de secuencias geneticas
 ========
 
-http://www.programando.org/blog/2013/03/desafio-marzo-slash-abril-adn-forense/#disqus_thread
+http://www.programando.org/blog/2013/03/desafio-marzo-slash-abril-adn-forense/
 
 Primer parametros es el archivo de datos, el segundo es debug.
 
