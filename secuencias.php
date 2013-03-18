@@ -17,19 +17,16 @@ foreach( $file as $line ) {
 }
 $matriz = array();
 foreach( $matriz_tmp as $l1 => $ps ) {
-	if( $l1 == '-' ) $l1 = '';
 	$ps = array_combine( array_keys( $matriz_tmp ), $ps );
 	foreach( $ps as $l2 => $p ) {
-		if( $l2 == '-' ) $l2 = '';
 		$matriz[$l1.'/'.$l2] = intval( $p );
+		$matriz[ ( $l1 == '-' ? '' : $l1 ).'/'.( $l2 == '-' ? '' : $l2 ) ] = intval( $p );
 	}
 }
 $matriz['/'] = 0;
 
 $puntajes = array();
 $muestra = array_shift( $secuencias );
-$cont = 0;
-
 foreach( $secuencias as $i => $s ) {
 	alinear( $muestra, $s );
 	$puntajes[$i] = $matriz[ min( $muestra, $s ).'/'.max( $muestra, $s ) ];
@@ -43,44 +40,60 @@ print 'El culpable es el sospechoso numero '.( $culpable + 1).' ('.$secuencias[$
 exit;
 
 
-function alinear( $s1, $s2 ) { // la funcion que hace la magia
-	global $matriz, $cont;
+function alinear( $s1, $s2, $dir = 0 ) { // la funcion que hace la magia
+	global $matriz, $cont, $sol;
 	$cont++;
 
 	if( strcmp( $s1, $s2 ) > 0 ) { // para que siempre $s1 < $s2
 		$tmp = $s1; $s1 = $s2; $s2 = $tmp;
+		$dir *= -1; // supongo que puntaje( X-/-Y ) <= puntaje( X/Y ) para todos X, Y
 	}
 
 	$k = $s1.'/'.$s2;
-	if( ! isset( $matriz[$k] ) ) {
-		$matriz[$k] = 0;
+	if( strlen( $k ) > 32 ) $k = md5( $k );
+
+	$suma = $matriz[$k];
+
+	if( ! isset( $suma ) ) {
 
 		while( $s1 && $s2 && $s1[0] == $s2[0] ) { // si primeros caracteres son iguales, avanzo
-			$matriz[$k] += $matriz[ $s1[0].'/'.$s2[0] ];
+			$suma += $matriz[ $s1[0].'/'.$s2[0] ];
 			$s1 = substr( $s1, 1 );
 			$s2 = substr( $s2, 1 );
 		}
 
 		if( $s1 == '' ) {
-			for( $i = 0; $i < strlen( $s2 ); $i++ ) $matriz[$k] += $matriz[ $s2[$i].'/' ];
+			for( $i = 0; $i < strlen( $s2 ); $i++ ) $suma += $matriz[ $s2[$i].'/' ];
 
 		} else {
-			$matriz[$k] += max(
-				$matriz[ $s1[0].'/' ] + alinear( substr( $s1, 1 ), $s2 ),
-				$matriz[ '/'.$s2[0] ] + alinear( $s1, substr( $s2, 1 ) ),
-				$matriz[ $s1[0].'/'.$s2[0] ] + alinear( substr( $s1, 1 ), substr( $s2, 1 ) )
-			);
+			$rec = array();
+			if( $dir != 1 ) $rec[0] = $matriz[ $s1[0].'/' ] + alinear( substr( $s1, 1 ), $s2, -1 );
+			if( $dir != -1 ) $rec[1] = $matriz[ '/'.$s2[0] ] + alinear( $s1, substr( $s2, 1 ), 1 );
+			$rec[2] = $matriz[ $s1[0].'/'.$s2[0] ] + alinear( substr( $s1, 1 ), substr( $s2, 1 ), 0 );
+			arsort( $rec);
+
+			$suma += max( $rec );
 		}
+
+		if( mem_uso() < 0.9 ) $matriz[$k] = $suma;
 	}
 
-	return $matriz[$k];
+	return $suma;
 }
-
 
 
 function print_a( $a ) { // solo para debuguear
-   if( func_num_args() > 1 ) $a = func_get_args();
-   print print_r( $a, TRUE )."\n\n";
+   print print_r( func_num_args() > 1 ? func_get_args() : $a, TRUE )."\n\n";
 }
+
+
+function mem_uso() {
+	global $mem_total;
+	if( ! $mem_total ) $mem_total = 1000000*intval( ini_get( 'memory_limit' ) );
+	if( ! $mem_total ) return 1;
+	return memory_get_usage() / $mem_total;
+}
+
+
 
 
