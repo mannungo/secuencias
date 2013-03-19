@@ -29,19 +29,21 @@ $puntajes = array();
 $muestra = array_shift( $secuencias );
 foreach( $secuencias as $i => $s ) {
 	alinear( $muestra, $s );
-	$puntajes[$i] = $matriz[ min( $muestra, $s ).'/'.max( $muestra, $s ) ];
+	$k = min( $muestra, $s ).'/'.max( $muestra, $s );
+	if( strlen( $k ) > 32 ) $k = md5( $k );
+	$puntajes[$i] = $matriz[$k];
 }
 arsort( $puntajes );
 $culpable = key( $puntajes );
 
-if( $argv[2] ) print_a( $muestra, $secuencias, $matriz, $cont, $puntajes );
+if( $argv[2] ) print_a( $muestra, $secuencias, array_slice( $matriz, 0, 100 ), $cont, $puntajes );
 
 print 'El culpable es el sospechoso numero '.( $culpable + 1).' ('.$secuencias[$culpable].').';
 exit;
 
 
 function alinear( $s1, $s2, $dir = 0 ) { // la funcion que hace la magia
-	global $matriz, $cont, $sol;
+	global $matriz, $cont;
 	$cont++;
 
 	if( strcmp( $s1, $s2 ) > 0 ) { // para que siempre $s1 < $s2
@@ -70,7 +72,6 @@ function alinear( $s1, $s2, $dir = 0 ) { // la funcion que hace la magia
 			if( $dir != 1 ) $rec[0] = $matriz[ $s1[0].'/' ] + alinear( substr( $s1, 1 ), $s2, -1 );
 			if( $dir != -1 ) $rec[1] = $matriz[ '/'.$s2[0] ] + alinear( $s1, substr( $s2, 1 ), 1 );
 			$rec[2] = $matriz[ $s1[0].'/'.$s2[0] ] + alinear( substr( $s1, 1 ), substr( $s2, 1 ), 0 );
-			arsort( $rec);
 
 			$suma += max( $rec );
 		}
